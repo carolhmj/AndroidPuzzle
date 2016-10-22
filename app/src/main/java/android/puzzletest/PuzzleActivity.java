@@ -37,7 +37,7 @@ public class PuzzleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle);
 
-        cells = EASY;
+        cells = MEDIUM;
         puzzleCells = new PuzzleElement[cells*cells];
 
         final GridView puzzlegrid = (GridView)findViewById(R.id.gridview);

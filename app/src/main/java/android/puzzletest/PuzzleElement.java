@@ -58,4 +58,11 @@ public class PuzzleElement implements Parcelable {
             return new PuzzleElement[size];
         }
     };
+
+    @Override
+    public String toString() {
+        String res = super.toString();
+        res = res + "position: " + String.valueOf(pos);
+        return res;
+    }
 }

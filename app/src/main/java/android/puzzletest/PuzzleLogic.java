@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import static java.util.Collections.shuffle;
+
 /**
  * Created by carol on 10/9/16.
  */
@@ -49,7 +51,33 @@ public class PuzzleLogic {
         this.puzzleElements = puzzleElements;
         this.ncells = ncells;
         emptyPosition = emptyPuzzleElementCurrPos;
+        Log.d("emptyPos", String.valueOf(emptyPosition));
         this.emptyPuzzleElement = emptyPuzzleElement;
+    }
+
+    static int countInversions(PuzzleElement[] list, int i) {
+        int inversions = 0;
+        for (int j = i+1; j < list.length; j++) {
+            if (list[i].getPos() > list[j].getPos()) {
+                inversions++;
+            }
+        }
+        return inversions;
+    }
+
+    static int sumInversions(PuzzleElement[] list, int emptyPosition) {
+        int totInversions = 0;
+        for (int i = 0; i < list.length; i++) {
+            if (i != emptyPosition)
+                totInversions += countInversions(list, i);
+        }
+        return totInversions;
+    }
+
+    static void swapIndices(PuzzleElement[] list, int i, int j) {
+        PuzzleElement aux = list[i];
+        list[i] = list[j];
+        list[j] = aux;
     }
 
     static PuzzleLogic makePuzzleFromImage(Bitmap completeImage, int ncells) {
@@ -71,31 +99,95 @@ public class PuzzleLogic {
                 generatedElements[pos] = new PuzzleElement(Bitmap.createBitmap(completeImage, j*imgDimension, i*imgDimension, imgDimension, imgDimension), pos);
             }
         }
+        int nelements = ncells*ncells;
+        int emptyPos = nelements-1;
 
-        int emptyPos = ncells*ncells-1;
-        Random rand = new Random();
-        for (int i = 0; i < 30*ncells; i++) {
-            int direction = rand.nextInt(5);
-            int slidePosX = getTwoDimXPos(emptyPos, ncells);
-            int slidePosY = getTwoDimYPos(emptyPos, ncells);
-            int slidePos = emptyPos;
-
-            if (direction == 0 && slidePosX > 0) {
-                slidePos = getPosFromTwoDimPos(slidePosX-1,slidePosY,ncells);
-            } else if (direction == 0 && slidePosY > 0) {
-                slidePos = getPosFromTwoDimPos(slidePosX,slidePosY-1,ncells);
-            } else if (direction == 0 && slidePosX < ncells-1) {
-                slidePos = getPosFromTwoDimPos(slidePosX+1,slidePosY,ncells);
-            } else if (direction == 0 && slidePosY < ncells-1) {
-                slidePos = getPosFromTwoDimPos(slidePosX,slidePosY+1,ncells);
+        ArrayList<Integer> randomPositions = new ArrayList<>();
+        for (int i = 0; i < nelements; i++) {
+            randomPositions.add(i,i);
+        }
+        int newEmptyPos = emptyPos;
+        shuffle(randomPositions);
+        Log.d("puzzle positions", randomPositions.toString());
+        PuzzleElement[] randomPosGeneratedElements = new PuzzleElement[ncells*ncells];
+        for (int i = 0; i < nelements; i++) {
+            Log.d("i", String.valueOf(i));
+            Log.d("randompos", String.valueOf(randomPositions.get(i)));
+            Log.d("getPos", String.valueOf(generatedElements[randomPositions.get(i)].getPos()));
+            Log.d("comp", String.valueOf(generatedElements[randomPositions.get(i)].getPos() == emptyPos));
+            if (generatedElements[randomPositions.get(i)].getPos() == emptyPos) {
+                newEmptyPos = i;
             }
-            PuzzleElement aux = generatedElements[emptyPos];
-            generatedElements[emptyPos] = generatedElements[slidePos];
-            generatedElements[slidePos] = aux;
-            emptyPos = slidePos;
+
+            randomPosGeneratedElements[i] = generatedElements[randomPositions.get(i)];
+        }
+        emptyPos = newEmptyPos;
+
+        Log.d("emptyPos", String.valueOf(emptyPos));
+        String pz = "";
+        for (int i = 0; i < nelements; i++) {
+            pz = pz + "i :" + String.valueOf(i) + " element: " + randomPosGeneratedElements[i].toString() + "\n";
+
+        }
+        Log.d("positions", pz);
+
+        int inversions = sumInversions(randomPosGeneratedElements, emptyPos);
+        Log.d("inversions", String.valueOf(inversions));
+        boolean solvable;
+        if (ncells % 2 == 1) {
+            solvable = (inversions % 2 == 0);
+        } else {
+            solvable = ((inversions + getTwoDimXPos(emptyPos, ncells)) % 2 == 1);
+        }
+        Log.d("solvable", String.valueOf(solvable));
+        if (!solvable) {
+            if (emptyPos <= 1) {
+                swapIndices(randomPosGeneratedElements, nelements-1, nelements-2);
+            } else {
+                swapIndices(randomPosGeneratedElements, 0, 1);
+            }
         }
 
-        return new PuzzleLogic(generatedElements, new PuzzleElement(emptyElementBitmap, ncells*ncells-1), emptyPos, ncells);
+        if (ncells % 2 == 1) {
+            Log.d("suminv: ", String.valueOf(sumInversions(randomPosGeneratedElements, emptyPos)));
+            if (sumInversions(randomPosGeneratedElements, emptyPos) % 2 != 0)
+                throw new AssertionError();
+        } else {
+            if ((sumInversions(randomPosGeneratedElements, emptyPos) + getTwoDimXPos(emptyPos, ncells)) % 2 != 1) {
+                throw new AssertionError();
+            }
+        }
+        String pz2 = "";
+        for (int i = 0; i < nelements; i++) {
+            pz2 = pz2 + "i :" + String.valueOf(i) + " element: " + randomPosGeneratedElements[i].toString() + "\n";
+
+        }
+        Log.d("positions", pz2);
+        return new PuzzleLogic(randomPosGeneratedElements, new PuzzleElement(emptyElementBitmap, ncells*ncells-1), emptyPos, ncells);
+//        Random rand = new Random(System.nanoTime());
+//        for (int i = 0; i < 30*ncells; i++) {
+//            int direction = rand.nextInt(4);
+//            Log.d("direction", String.valueOf(direction));
+//            int slidePosX = getTwoDimXPos(emptyPos, ncells);
+//            int slidePosY = getTwoDimYPos(emptyPos, ncells);
+//            int slidePos = emptyPos;
+//
+//            if (direction == 0 && slidePosX > 0) {
+//                slidePos = getPosFromTwoDimPos(slidePosX-1,slidePosY,ncells);
+//            } else if (direction == 1 && slidePosY > 0) {
+//                slidePos = getPosFromTwoDimPos(slidePosX,slidePosY-1,ncells);
+//            } else if (direction == 2 && slidePosX < ncells-1) {
+//                slidePos = getPosFromTwoDimPos(slidePosX+1,slidePosY,ncells);
+//            } else if (direction == 3 && slidePosY < ncells-1) {
+//                slidePos = getPosFromTwoDimPos(slidePosX,slidePosY+1,ncells);
+//            }
+//            PuzzleElement aux = generatedElements[emptyPos];
+//            generatedElements[emptyPos] = generatedElements[slidePos];
+//            generatedElements[slidePos] = aux;
+//            emptyPos = slidePos;
+//        }
+//
+//        return new PuzzleLogic(generatedElements, new PuzzleElement(emptyElementBitmap, ncells*ncells-1), emptyPos, ncells);
     }
 
 
@@ -118,30 +210,65 @@ public class PuzzleLogic {
             }
         }
 
-        int emptyPos = ncells*ncells-1;
-        Random rand = new Random();
-        for (int i = 0; i < 30*ncells; i++) {
-            int direction = rand.nextInt(5);
-            int slidePosX = getTwoDimXPos(emptyPos, ncells);
-            int slidePosY = getTwoDimYPos(emptyPos, ncells);
-            int slidePos = emptyPos;
+        int nelements = ncells*ncells;
+        int emptyPos = nelements-1;
 
-            if (direction == 0 && slidePosX > 0) {
-                slidePos = getPosFromTwoDimPos(slidePosX-1,slidePosY,ncells);
-            } else if (direction == 0 && slidePosY > 0) {
-                slidePos = getPosFromTwoDimPos(slidePosX,slidePosY-1,ncells);
-            } else if (direction == 0 && slidePosX < ncells-1) {
-                slidePos = getPosFromTwoDimPos(slidePosX+1,slidePosY,ncells);
-            } else if (direction == 0 && slidePosY < ncells-1) {
-                slidePos = getPosFromTwoDimPos(slidePosX,slidePosY+1,ncells);
-            }
-            PuzzleElement aux = generatedElements[emptyPos];
-            generatedElements[emptyPos] = generatedElements[slidePos];
-            generatedElements[slidePos] = aux;
-            emptyPos = slidePos;
+        ArrayList<Integer> randomPositions = new ArrayList<>(nelements);
+        for (int i = 0; i < nelements; i++) {
+            randomPositions.set(i, i);
         }
 
-        return new PuzzleLogic(generatedElements, new PuzzleElement(emptyImage, ncells*ncells-1), emptyPos, ncells);
+        shuffle(randomPositions);
+        Log.d("puzzle positions", randomPositions.toString());
+        PuzzleElement[] randomPosGeneratedElements = new PuzzleElement[ncells*ncells];
+        for (int i = 0; i < nelements; i++) {
+            if (generatedElements[randomPositions.get(i)].getPos() == emptyPos) {
+                emptyPos = i;
+            }
+            randomPosGeneratedElements[i] = generatedElements[randomPositions.get(i)];
+        }
+
+        int inversions = sumInversions(randomPosGeneratedElements, emptyPos);
+
+        boolean solvable;
+        if (ncells%2==1) {
+            solvable = (inversions % 2 == 0);
+        } else {
+            solvable = ((inversions + ncells - getTwoDimXPos(emptyPos, ncells)) % 2 == 0);
+        }
+        if (solvable) {
+            if (emptyPos <= 1) {
+                swapIndices(randomPosGeneratedElements, nelements-1, nelements-2);
+            } else {
+                swapIndices(randomPosGeneratedElements, 0, 1);
+            }
+        }
+
+        return new PuzzleLogic(randomPosGeneratedElements, new PuzzleElement(emptyImage, ncells*ncells-1), emptyPos, ncells);
+//        Random rand = new Random();
+//        for (int i = 0; i < 30*ncells; i++) {
+//            int direction = rand.nextInt(5);
+//            int slidePosX = getTwoDimXPos(emptyPos, ncells);
+//            int slidePosY = getTwoDimYPos(emptyPos, ncells);
+//            int slidePos = emptyPos;
+//
+//            if (direction == 0 && slidePosX > 0) {
+//                slidePos = getPosFromTwoDimPos(slidePosX-1,slidePosY,ncells);
+//            } else if (direction == 0 && slidePosY > 0) {
+//                slidePos = getPosFromTwoDimPos(slidePosX,slidePosY-1,ncells);
+//            } else if (direction == 0 && slidePosX < ncells-1) {
+//                slidePos = getPosFromTwoDimPos(slidePosX+1,slidePosY,ncells);
+//            } else if (direction == 0 && slidePosY < ncells-1) {
+//                slidePos = getPosFromTwoDimPos(slidePosX,slidePosY+1,ncells);
+//            }
+//            PuzzleElement aux = generatedElements[emptyPos];
+//            generatedElements[emptyPos] = generatedElements[slidePos];
+//            generatedElements[slidePos] = aux;
+//            emptyPos = slidePos;
+//        }
+
+//        return new PuzzleLogic(generatedElements, new PuzzleElement(emptyImage, ncells*ncells-1), emptyPos, ncells);
+
     }
 
     public PuzzleElement[] getPuzzleElements() {
@@ -220,9 +347,9 @@ public class PuzzleLogic {
         if (isTopNeighbour(position, emptyPosition) || isBottomNeighbour(position, emptyPosition) || isLeftNeighbour(position, emptyPosition) || isRightNeighbour(position, emptyPosition)){
             //Checa se o elemento está indo para a posição correta dele
             Log.d("correct position", String.valueOf(puzzleElements[position].getPos()));
-            if (emptyPosition == puzzleElements[position].getPos()) {
+            if (emptyPosition == puzzleElements[position].getPos() && ncorrectCells <= getNumElements()) {
                 ncorrectCells++;
-            } else {
+            } else if (ncorrectCells > 0){
                 ncorrectCells--;
             }
 

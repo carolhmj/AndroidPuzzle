@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/PuzzleTest.iml" filepath="$PROJECT_DIR$/PuzzleTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file:///media/data/GitHub/PuzzleTest/PuzzleTest.iml" filepath="/media/data/GitHub/PuzzleTest/PuzzleTest.iml" />
+      <module fileurl="file:///media/data/GitHub/PuzzleTest/app/app.iml" filepath="/media/data/GitHub/PuzzleTest/app/app.iml" />
     </modules>
   </component>
 </project>
