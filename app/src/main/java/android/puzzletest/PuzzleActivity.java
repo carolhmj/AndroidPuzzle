@@ -3,6 +3,7 @@ package android.puzzletest;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -36,15 +37,14 @@ public class PuzzleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle);
 
-        cells = MEDIUM;
+        cells = EASY;
         puzzleCells = new PuzzleElement[cells*cells];
 
         final GridView puzzlegrid = (GridView)findViewById(R.id.gridview);
         puzzlegrid.setNumColumns(cells);
 
-        Bitmap inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(),  R.drawable.teste);
-        Bitmap bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.vazio);
-        puzzleLogic = PuzzleLogic.makePuzzleFromImage(inputImage, bitmap, cells);
+        Bitmap inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.teste_de_imagem_puzzle);
+        puzzleLogic = PuzzleLogic.makePuzzleFromImage(inputImage, cells);
 
         final PuzzleGridAdapter puzzleGridAdapter = new PuzzleGridAdapter(this, puzzleLogic);
         puzzlegrid.setAdapter(puzzleGridAdapter);
@@ -52,13 +52,15 @@ public class PuzzleActivity extends AppCompatActivity {
         puzzlegrid.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
                 puzzleLogic.moveElement(position);
                 if (puzzleLogic.isFinished()) {
                     Log.d("listener", "won");
-                    TextView winText = (TextView)findViewById(R.id.displaytext);
+                    TextView winText = (TextView) findViewById(R.id.displaytext);
                     winText.setText("You won!!!!!!!");
                 }
-                puzzleGridAdapter.notifyDataSetChanged();
+
+            puzzleGridAdapter.notifyDataSetChanged();
             }
         });
 

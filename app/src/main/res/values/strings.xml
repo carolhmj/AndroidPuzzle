@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PuzzleTest</string>
+    <string name="swapButtonText">Swap pieces once</string>
 </resources>
