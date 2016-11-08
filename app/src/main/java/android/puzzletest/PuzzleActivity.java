@@ -1,11 +1,14 @@
 package android.puzzletest;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +17,7 @@ import android.widget.Chronometer;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class PuzzleActivity extends AppCompatActivity {
@@ -70,38 +74,6 @@ public class PuzzleActivity extends AppCompatActivity {
     Chronometer timer;
 
     PuzzleLogic puzzleLogic;
-    Handler timeHandler = new Handler();
-//    private class TimeRunnable implements Runnable {
-//        long startTime, maxTime;
-//        public TimeRunnable(long startTime, long maxTime) {
-//            this.startTime = startTime;
-//            this.maxTime = maxTime;
-//        }
-//        @Override
-//        public void run() {
-//            final long deltaTime = SystemClock.elapsedRealtime() - startTime;
-//
-//            timeHandler.post(new Runnable() {
-//                @Override
-//                public void run() {
-//                    TextView timerView = (TextView) findViewById(R.id.timerText);
-//                    timerView.setText("Time: " + String.valueOf(deltaTime));
-//                }
-//            });
-//
-//            if (deltaTime > maxTime) {
-//                timeHandler.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        TextView timerView = (TextView) findViewById(R.id.displaytext);
-//                        timerView.setText("You lost!!!!");
-//                    }
-//                });
-//            }
-//
-//            timeHandler.postDelayed(this, 500);
-//        }
-//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +93,16 @@ public class PuzzleActivity extends AppCompatActivity {
         assert puzzlegrid != null;
         puzzlegrid.setNumColumns(difficulty.getNumCells());
 
-        Bitmap inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.teste_de_imagem_puzzle);
+        Uri imageLocation = Uri.parse(callingIntent.getStringExtra(imageIntent));
+        Bitmap inputImage = null;
+
+        try {
+            inputImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageLocation);
+        } catch (IOException e) {
+            inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.teste_de_imagem_puzzle);
+            e.printStackTrace();
+        }
+
         puzzleLogic = PuzzleLogic.makePuzzleFromImage(inputImage, difficulty.getNumCells());
 
         final PuzzleGridAdapter puzzleGridAdapter = new PuzzleGridAdapter(this, puzzleLogic);
@@ -136,7 +117,6 @@ public class PuzzleActivity extends AppCompatActivity {
             startTimer = savedInstanceState.getLong(timeSavedId);
         }
         Log.d("startTimer", String.valueOf(startTimer));
-//        timeHandler.postDelayed(new TimeRunnable(startTimer, MEDIUMTIME), 0);
 
         timer = (Chronometer) findViewById(R.id.timer);
         timer.setBase(startTimer);
@@ -163,6 +143,7 @@ public class PuzzleActivity extends AppCompatActivity {
                     Log.d("listener", "won");
                     TextView winText = (TextView) findViewById(R.id.displaytext);
                     winText.setText("You won!!!!!!!");
+                    setResult(Activity.RESULT_OK);
                 }
 
             puzzleGridAdapter.notifyDataSetChanged();
@@ -199,7 +180,6 @@ public class PuzzleActivity extends AppCompatActivity {
         long savedStartTime = savedInstanceState.getLong(timeSavedId);
         Log.d("timeSaved", String.valueOf(savedStartTime));
         timer.setBase(savedStartTime);
-//        timeHandler.postDelayed(new TimeRunnable(savedStartTime, MEDIUMTIME), 0);
 
     }
 
