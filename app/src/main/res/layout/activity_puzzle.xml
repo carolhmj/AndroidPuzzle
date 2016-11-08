@@ -10,20 +10,36 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="android.puzzletest.PuzzleActivity">
 
+    <TextView
+        android:id="@+id/resolutionTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+
+    <Chronometer
+        android:id="@+id/timer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/resolutionTime"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+
+    <TextView
+        android:id="@+id/displaytext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/timer"
+        android:layout_alignParentStart="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+
     <GridView
         android:id="@+id/gridview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:layout_below="@+id/displaytext"
         android:horizontalSpacing="0dp"
         android:verticalSpacing="0dp">
     </GridView>
-
-    <TextView
-        android:id="@+id/displaytext"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textStyle="bold"
-        android:textSize="100dp"/>
 
 </RelativeLayout>
