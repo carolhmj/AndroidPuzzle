@@ -37,10 +37,10 @@ public class MainActivity extends AppCompatActivity {
             Uri uri = data.getData();
 
             Intent callPuzzle = new Intent(this, PuzzleActivity.class);
-            callPuzzle.putExtra(PuzzleActivity.difficultyIntent, PuzzleActivity.Difficulty.HARD.getCode());
+            callPuzzle.putExtra(PuzzleActivity.difficultyIntent, PuzzleActivity.Difficulty.EASY.getCode());
             callPuzzle.putExtra(PuzzleActivity.imageIntent, uri.toString());
-            startActivity(callPuzzle);
-
+//            startActivity(callPuzzle);
+            startActivityForResult(callPuzzle, PuzzleActivity.requestCode);
         }
     }
 }

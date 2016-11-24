@@ -1,16 +1,10 @@
 package android.puzzletest;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 
 import static java.util.Collections.shuffle;
 
@@ -28,12 +22,7 @@ public class PuzzleLogic {
     private boolean finished = false;
 
     PuzzleLogic(PuzzleElement[] puzzleElements, PuzzleElement emptyPuzzleElement, int ncells) {
-        for (int i = 0; i < puzzleElements.length; i++) {
-            //Elemento tá na posição correta
-            if (puzzleElements[i].getPos() == i) {
-                ncorrectCells++;
-            }
-        }
+
         this.puzzleElements = puzzleElements;
         this.ncells = ncells;
         emptyPosition = emptyPuzzleElement.getPos();
@@ -41,13 +30,7 @@ public class PuzzleLogic {
     }
 
     PuzzleLogic(PuzzleElement[] puzzleElements, PuzzleElement emptyPuzzleElement, int emptyPuzzleElementCurrPos, int ncells) {
-        for (int i = 0; i < puzzleElements.length; i++) {
-            //Elemento tá na posição correta
-            if (puzzleElements[i].getPos() == i) {
-                ncorrectCells++;
-            }
-        }
-        Log.d("ncorrectcells", String.valueOf(ncorrectCells));
+
         this.puzzleElements = puzzleElements;
         this.ncells = ncells;
         emptyPosition = emptyPuzzleElementCurrPos;
@@ -235,26 +218,32 @@ public class PuzzleLogic {
         return ((getTwoDimXPos(pos2) == getTwoDimXPos(pos1)) && (getTwoDimYPos(pos2) == getTwoDimYPos(pos1)+1));
     }
 
+    public int numCorrectCells() {
+        int numCorrectCells = 0;
+        for (int i = 0; i < puzzleElements.length; i++) {
+          if (puzzleElements[i].getPos() == i) {
+              numCorrectCells++;
+          }
+        }
+        return numCorrectCells;
+    }
+
     public void moveElement(int position) {
         Log.d("moveElement", "position: " + String.valueOf(position) + " emptyPostition: " + String.valueOf(emptyPosition));
         Log.d("position", String.valueOf(getTwoDimXPos(position))+ " " + String.valueOf(getTwoDimYPos(position)));
         Log.d("emptypos", String.valueOf(getTwoDimXPos(emptyPosition))+ " " + String.valueOf(getTwoDimYPos(emptyPosition)));
-        if (isTopNeighbour(position, emptyPosition) || isBottomNeighbour(position, emptyPosition) || isLeftNeighbour(position, emptyPosition) || isRightNeighbour(position, emptyPosition)){
-            //Checa se o elemento está indo para a posição correta dele
-            Log.d("correct position", String.valueOf(puzzleElements[position].getPos()));
-            if (emptyPosition == puzzleElements[position].getPos() && ncorrectCells <= getNumElements()) {
-                ncorrectCells++;
-            } else if (ncorrectCells > 0){
-                ncorrectCells--;
-            }
-
-            Log.d("nCorrectCells", String.valueOf(ncorrectCells));
-            if (ncorrectCells == ncells*ncells-1) {
-                finished = true;
-            }
+        if (isTopNeighbour(position, emptyPosition) || isBottomNeighbour(position, emptyPosition) || isLeftNeighbour(position, emptyPosition) || isRightNeighbour(position, emptyPosition)) {
 
             swapPuzzleElements(position, emptyPosition);
             emptyPosition = position;
+
+            //Checa se os elementos estão em suas posições corretas
+            ncorrectCells = numCorrectCells();
+
+            Log.d("nCorrectCells", String.valueOf(ncorrectCells));
+            if (ncorrectCells >= ncells*ncells) {
+                finished = true;
+            }
         }
     }
 

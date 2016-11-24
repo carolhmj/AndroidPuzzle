@@ -26,8 +26,8 @@ public class PuzzleActivity extends AppCompatActivity {
     static public int SOLVE_MEDIUM = 2;
 
     public enum Difficulty {
-        EASY (3, 5*60*1000),
-        HARD (4, 3*60*1000);
+        EASY (3, 3*60*1000),
+        HARD (4, 6*60*1000);
 
         private final int code;
         private final int numCells;
@@ -64,6 +64,7 @@ public class PuzzleActivity extends AppCompatActivity {
 
     static public String difficultyIntent = "DIFFICULTY";
     static public String imageIntent = "IMAGE";
+    static public int requestCode = 100;
 
     static private String elementsSavedId = "SavedPuzzleElements";
     static private String difficultySavedId = "SavedDifficulty";
@@ -72,7 +73,7 @@ public class PuzzleActivity extends AppCompatActivity {
 
     long startTimer;
     Chronometer timer;
-
+    boolean lost = false;
     PuzzleLogic puzzleLogic;
 
     @Override
@@ -129,6 +130,7 @@ public class PuzzleActivity extends AppCompatActivity {
                     TextView loseText = (TextView) findViewById(R.id.displaytext);
                     loseText.setText("You lost!!!!!!!");
                     puzzlegrid.setClickable(false);
+                    lost = true;
                 }
             }
         });
@@ -139,11 +141,12 @@ public class PuzzleActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
                 puzzleLogic.moveElement(position);
-                if (puzzleLogic.isFinished()) {
+                if (puzzleLogic.isFinished() && !lost) {
                     Log.d("listener", "won");
                     TextView winText = (TextView) findViewById(R.id.displaytext);
                     winText.setText("You won!!!!!!!");
                     setResult(Activity.RESULT_OK);
+                    finish();
                 }
 
             puzzleGridAdapter.notifyDataSetChanged();
