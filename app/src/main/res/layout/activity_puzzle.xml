@@ -42,4 +42,10 @@
         android:verticalSpacing="0dp">
     </GridView>
 
+    <TextView
+        android:id="@+id/caminhoImagem"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/gridview"/>
+
 </RelativeLayout>

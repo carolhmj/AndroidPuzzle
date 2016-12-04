@@ -17,6 +17,7 @@ import android.widget.Chronometer;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -94,14 +95,36 @@ public class PuzzleActivity extends AppCompatActivity {
         assert puzzlegrid != null;
         puzzlegrid.setNumColumns(difficulty.getNumCells());
 
-        Uri imageLocation = Uri.parse(callingIntent.getStringExtra(imageIntent));
+//        Uri imageLocation = Uri.parse(callingIntent.getStringExtra(imageIntent));
+//        TextView caminhoImagem = (TextView) findViewById(R.id.caminhoImagem);
+//        caminhoImagem.setText(imageLocation.toString());
+//        Log.d("onCreate", imageLocation.toString());
+//        Bitmap inputImage = null;
+//
+//        try {
+//            inputImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageLocation);
+//        } catch (IOException e) {
+//            inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.teste_de_imagem_puzzle);
+//            e.printStackTrace();
+//        }
+
+        String imageLocation = callingIntent.getStringExtra(imageIntent);
+        TextView caminhoImagem = (TextView) findViewById(R.id.caminhoImagem);
+        caminhoImagem.setText(imageLocation);
         Bitmap inputImage = null;
 
         try {
-            inputImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageLocation);
-        } catch (IOException e) {
+            Log.d("onCreate", "file is " + imageLocation);
+            inputImage = BitmapFactory.decodeFile(imageLocation);
+        } catch (Exception e) {
             inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.teste_de_imagem_puzzle);
             e.printStackTrace();
+        }
+
+        if (inputImage == null) {
+            Log.d("onCreate", "Decoded input image is null");
+            caminhoImagem.append(" Image path is null");
+            inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.teste_de_imagem_puzzle);
         }
 
         puzzleLogic = PuzzleLogic.makePuzzleFromImage(inputImage, difficulty.getNumCells());
@@ -140,13 +163,15 @@ public class PuzzleActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
-                puzzleLogic.moveElement(position);
-                if (puzzleLogic.isFinished() && !lost) {
-                    Log.d("listener", "won");
-                    TextView winText = (TextView) findViewById(R.id.displaytext);
-                    winText.setText("You won!!!!!!!");
-                    setResult(Activity.RESULT_OK);
-                    finish();
+                if (!lost) {
+                    puzzleLogic.moveElement(position);
+                    if (puzzleLogic.isFinished()) {
+                        Log.d("listener", "won");
+                        TextView winText = (TextView) findViewById(R.id.displaytext);
+                        winText.setText("You won!!!!!!!");
+                        setResult(Activity.RESULT_OK);
+                        finish();
+                    }
                 }
 
             puzzleGridAdapter.notifyDataSetChanged();
