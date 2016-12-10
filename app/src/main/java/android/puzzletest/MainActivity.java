@@ -35,10 +35,11 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
 
             Uri uri = data.getData();
+            String uriPath = uri.getPath();
 
             Intent callPuzzle = new Intent(this, PuzzleActivity.class);
             callPuzzle.putExtra(PuzzleActivity.difficultyIntent, PuzzleActivity.Difficulty.EASY.getCode());
-            callPuzzle.putExtra(PuzzleActivity.imageIntent, uri.toString());
+            callPuzzle.putExtra(PuzzleActivity.imageIntent, uriPath);
 //            startActivity(callPuzzle);
             startActivityForResult(callPuzzle, PuzzleActivity.requestCode);
         }
