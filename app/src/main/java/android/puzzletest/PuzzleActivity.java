@@ -12,9 +12,11 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.TextView;
 
@@ -84,6 +86,11 @@ public class PuzzleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle);
 
+        if (savedInstanceState != null) {
+            onRestoreInstanceState(savedInstanceState);
+            return;
+        }
+
         Intent callingIntent = getIntent();
         int selectedDifficulty = callingIntent.getIntExtra(difficultyIntent, Difficulty.EASY.getCode());
 
@@ -126,8 +133,8 @@ public class PuzzleActivity extends AppCompatActivity {
         if (inputImage == null) {
             Log.d("onCreate", "Decoded input image is null");
             caminhoImagem.append(" Image path is null");
-//            inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.teste_de_imagem_puzzle);
-            inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.testepequeno2);
+            inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.teste_de_imagem_puzzle);
+//            inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.testepequeno2);
         }
 
         caminhoImagem.setVisibility(View.INVISIBLE);
@@ -135,7 +142,6 @@ public class PuzzleActivity extends AppCompatActivity {
         continueButton.setClickable(false);
 
         puzzleLogic = PuzzleLogic.makePuzzleFromImage(inputImage, difficulty.getNumCells());
-
         final PuzzleGridAdapter puzzleGridAdapter = new PuzzleGridAdapter(this, puzzleLogic);
         puzzlegrid.setAdapter(puzzleGridAdapter);
 
@@ -189,10 +195,18 @@ public class PuzzleActivity extends AppCompatActivity {
 
     }
 
+    public void logSavedElements(PuzzleElement[] elements) {
+
+        for (int i = 0; i < elements.length; i++) {
+            Log.d("element", "pos " + String.valueOf(i) + " correct pos " + elements[i].getPos());
+        }
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        logSavedElements(puzzleLogic.getPuzzleElements());
         outState.putParcelableArray(elementsSavedId, puzzleLogic.getPuzzleElements());
         outState.putInt(difficultySavedId, difficulty.getCode());
         outState.putParcelable(emptyElementSavedId, puzzleLogic.emptyPuzzleElement);
@@ -203,6 +217,7 @@ public class PuzzleActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         PuzzleElement[] savedPE = (PuzzleElement[]) savedInstanceState.getParcelableArray(elementsSavedId);
+        logSavedElements(savedPE);
 
         int selectedDifficulty = savedInstanceState.getInt(difficultySavedId);
         if (selectedDifficulty == Difficulty.EASY.getCode()) {

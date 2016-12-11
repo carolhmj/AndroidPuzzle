@@ -19,7 +19,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PuzzleActivity">
+        <activity android:name=".PuzzleActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.puzzletest.PUZZLEACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />

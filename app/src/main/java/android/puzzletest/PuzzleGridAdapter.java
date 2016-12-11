@@ -46,6 +46,7 @@ public class PuzzleGridAdapter extends BaseAdapter {
         if (convertView == null) {
             final LayoutInflater layoutInflater = LayoutInflater.from(context);
             convertView = layoutInflater.inflate(R.layout.puzzleelement_layout, null);
+            convertView.setPadding(0,0,0,0);
 
             final ImageView imageElementView = (ImageView)convertView.findViewById(R.id.imageelement);
             final TextView positionElementView = (TextView)convertView.findViewById(R.id.positionelement);
