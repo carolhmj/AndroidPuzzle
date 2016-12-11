@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -76,6 +77,7 @@ public class PuzzleActivity extends AppCompatActivity {
     Chronometer timer;
     boolean lost = false;
     PuzzleLogic puzzleLogic;
+    Button continueButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,8 +126,13 @@ public class PuzzleActivity extends AppCompatActivity {
         if (inputImage == null) {
             Log.d("onCreate", "Decoded input image is null");
             caminhoImagem.append(" Image path is null");
-            inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.teste_de_imagem_puzzle);
+//            inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.teste_de_imagem_puzzle);
+            inputImage = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.testepequeno2);
         }
+
+        caminhoImagem.setVisibility(View.INVISIBLE);
+        continueButton = (Button) findViewById(R.id.continueButton);
+        continueButton.setClickable(false);
 
         puzzleLogic = PuzzleLogic.makePuzzleFromImage(inputImage, difficulty.getNumCells());
 
@@ -154,6 +161,7 @@ public class PuzzleActivity extends AppCompatActivity {
                     loseText.setText("You lost!!!!!!!");
                     puzzlegrid.setClickable(false);
                     lost = true;
+                    continueButton.setClickable(true);
                 }
             }
         });
@@ -169,8 +177,9 @@ public class PuzzleActivity extends AppCompatActivity {
                         Log.d("listener", "won");
                         TextView winText = (TextView) findViewById(R.id.displaytext);
                         winText.setText("You won!!!!!!!");
-                        setResult(Activity.RESULT_OK);
-                        finish();
+//                        setResult(Activity.RESULT_OK);
+//                        finish();
+                        continueButton.setClickable(true);
                     }
                 }
 
@@ -214,6 +223,16 @@ public class PuzzleActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void onClickContinue(View view) {
+        if (puzzleLogic.isFinished()) {
+            setResult(Activity.RESULT_OK);
+            finish();
+        } else {
+            setResult(Activity.RESULT_CANCELED);
+            finish();
+        }
     }
 }
 

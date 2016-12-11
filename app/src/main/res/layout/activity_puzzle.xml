@@ -47,5 +47,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/gridview"/>
+    <!--<ImageView-->
+        <!--android:id="@+id/solvedImage"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content" />-->
+    <Button
+        android:id="@+id/continueButton"
+        android:text="Continuar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/caminhoImagem"
+        android:clickable="false"
+        android:onClick="onClickContinue"
+        android:layout_alignBaseline="@+id/gridview"/>
 
 </RelativeLayout>
